@@ -1,444 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>free-search</title>
-
-<link rel="manifest" href="manifest.json">
-
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
-}
-
 body{
   background:#111;
   background-size:cover;
   background-position:center;
-  background-repeat:no-repeat;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  min-height:100vh;
+  font-family:Arial,sans-serif;
   color:white;
-}
-
-.container{
-  width:100%;
-  max-width:900px;
-  position:relative;
-  z-index:1;
   display:flex;
   flex-direction:column;
   align-items:center;
-  text-align:center;
-  gap:20px;
-}
-
-.title-container{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-}
-
-.title-container h3{
-  color:#aaa;
-  font-size:18px;
-  margin-bottom:5px;
-}
-
-h1{
-  font-size:48px;
-}
-
-/* search */
-.search-box{
-  display:flex;
-  gap:10px;
-  width:100%;
-  max-width:600px;
-}
-
-.search-box input{
-  flex:1;
-  padding:16px;
-  border:none;
-  border-radius:12px;
-  font-size:18px;
-}
-
-.search-btn{
-  padding:16px 24px;
-  border:none;
-  border-radius:12px;
-  background:#4285f4;
-  color:white;
-  cursor:pointer;
-}
-
-/* shortcuts */
-.shortcuts-header{
-  display:flex;
   justify-content:center;
-  align-items:center;
-  gap:10px;
 }
-
-.add-btn{
-  width:45px;
-  height:45px;
-  border:none;
-  border-radius:50%;
-  background:#34a853;
-  color:white;
-  font-size:26px;
-  cursor:pointer;
-}
-
-.shortcuts{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:15px;
-}
-
-.shortcut{
-  background:rgba(255,255,255,0.9);
-  padding:15px;
-  border-radius:12px;
-  min-width:140px;
-  cursor:pointer;
-  color:black;
-}
-
-/* modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:100;
-}
-
-.modal-content{
-  background:#202124;
-  width:90%;
-  max-width:400px;
-  padding:25px;
-  border-radius:16px;
-  color:white;
-}
-
-.modal-content input, select{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-  background:#3c4043;
-  color:white;
-}
-
-.modal-buttons{
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:15px;
-}
-
-/* clock */
-#clock{
-  position:fixed;
-  bottom:15px;
-  right:15px;
-  background:rgba(0,0,0,0.6);
-  padding:10px 15px;
-  border-radius:12px;
-}
-
-/* wallpaper button */
-.wallpaper-btn{
-  position:fixed;
-  top:15px;
-  right:15px;
-  width:50px;
-  height:50px;
-  border:none;
-  border-radius:50%;
-  background:red;
-  color:white;
-  font-size:30px;
-  cursor:pointer;
-}
-
-/* music button */
-#musicBtn{
-  position:fixed;
-  bottom:80px;
-  right:15px;
-  width:55px;
-  height:55px;
-  border:none;
-  border-radius:50%;
-  background:purple;
-  color:white;
-  font-size:30px;
-  cursor:pointer;
-}
-
-/* settings */
-#settingsBtn{
-  position:fixed;
-  bottom:15px;
-  left:15px;
-  width:50px;
-  height:50px;
-  border:none;
-  border-radius:50%;
-  background:#555;
-  color:white;
-  font-size:22px;
-  cursor:pointer;
-  z-index:9999;
-}
-
-/* brain */
-#brainBtn{
-  position:fixed;
-  top:50%;
-  right:15px;
-  transform:translateY(-50%);
-  width:55px;
-  height:55px;
-  border:none;
-  border-radius:50%;
-  background:#222;
-  color:white;
-  font-size:26px;
-  cursor:pointer;
-  z-index:9999;
-}
-
-#brainPanel{
-  position:fixed;
-  top:50%;
-  right:80px;
-  transform:translateY(-50%);
-  width:300px;
-  background:#1e1e1e;
-  padding:15px;
-  border-radius:12px;
-  display:none;
-  z-index:9999;
-}
-
-#brainPanel input{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-}
-
-#brainResult{
-  margin-top:10px;
-  font-size:14px;
-  color:#ddd;
-  max-height:200px;
-  overflow:auto;
-}
+h1{font-size:48px;margin-bottom:20px;}
+.search-box{display:flex;gap:10px;margin-bottom:20px;}
+.search-box input{padding:12px;font-size:16px;border-radius:8px;border:none;width:300px;}
+.search-btn{padding:12px 20px;background:#4285f4;border:none;border-radius:8px;color:white;cursor:pointer;}
+#musicBtn, #musicToggleBtn{position:fixed;top:15px;width:50px;height:50px;border:none;border-radius:50%;color:white;font-size:26px;cursor:pointer;}
+#musicBtn{right:15px;background:purple;}
+#musicToggleBtn{left:15px;background:#1db954;}
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<div class="title-container">
-  <h3>(by Caleb)</h3>
-  <h1>free-search</h1>
-</div>
+<h1>free-search</h1>
 
 <div class="search-box">
   <input id="searchInput" placeholder="Search or type website...">
   <button class="search-btn" onclick="search()">Search</button>
 </div>
 
-<div class="shortcuts-header">
-  <button class="add-btn" onclick="openModal()">+</button>
-</div>
-
-<div id="shortcuts" class="shortcuts"></div>
-
-</div>
-
-<!-- WALLPAPER -->
-<button class="wallpaper-btn" onclick="chooseWallpaper()">+</button>
-<input type="file" id="wallpaperInput" accept="image/*" hidden>
-
-<!-- CLOCK -->
-<div id="clock"></div>
-
-<!-- MUSIC -->
+<!-- Music upload -->
+<button id="musicBtn" onclick="pickMusic()">🎵</button>
 <input type="file" id="musicInput" accept="audio/mp3" hidden>
 <audio id="bgMusic" loop></audio>
-<button id="musicBtn" onclick="pickMusic()">+</button>
 
-<!-- SETTINGS -->
-<button id="settingsBtn" onclick="openSettings()">⚙️</button>
-
-<!-- BRAIN -->
-<button id="brainBtn" onclick="toggleBrain()">🧠</button>
-<div id="brainPanel">
-  <h2>Brain Mode</h2>
-  <input id="brainInput" placeholder="Ask anything..." />
-  <button onclick="askBrain()">Ask</button>
-  <div id="brainResult"></div>
-</div>
-
-<!-- MODALS -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h2>Add shortcut</h2>
-    <input id="shortcutName" placeholder="Name">
-    <input id="shortcutURL" placeholder="URL">
-    <div class="modal-buttons">
-      <button onclick="closeModal()">Cancel</button>
-      <button onclick="addShortcut()">Done</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="settingsModal">
-  <div class="modal-content">
-    <h2>Settings</h2>
-    <p>Time Zone:</p>
-    <select id="timezoneSelect">
-      <option value="Africa/Johannesburg">South Africa</option>
-      <option value="UTC">UTC</option>
-      <option value="Europe/London">London</option>
-      <option value="America/New_York">New York</option>
-      <option value="Asia/Dubai">Dubai</option>
-      <option value="Asia/Tokyo">Tokyo</option>
-    </select>
-
-    <hr style="margin:15px 0;">
-
-    <button onclick="stopMusic()" style="width:100%;padding:10px;margin-top:10px;">Remove Background Music</button>
-    <button onclick="clearShortcuts()" style="width:100%;padding:10px;margin-top:10px;background:#d93025;color:white;">Remove All Shortcuts</button>
-    <button onclick="removeBackground()" style="width:100%;padding:10px;margin-top:10px;">Remove Background</button>
-
-    <div class="modal-buttons">
-      <button onclick="closeSettings()">Close</button>
-      <button onclick="saveTimezone()">Save</button>
-    </div>
-  </div>
-</div>
+<!-- Play/pause button -->
+<button id="musicToggleBtn" onclick="toggleMusic()">▶️</button>
 
 <script>
-// DATA
-let shortcuts = [
-  { name:"Google", url:"https://google.com" },
-  { name:"YouTube", url:"https://youtube.com" }
-];
-let timezone = "Africa/Johannesburg";
-
-// LOAD
-function load(){
-  const s = localStorage.getItem("shortcuts");
-  if(s) shortcuts = JSON.parse(s);
-  const t = localStorage.getItem("timezone");
-  if(t) timezone = t;
-}
-function save(){ localStorage.setItem("shortcuts", JSON.stringify(shortcuts)); }
-
-// RENDER SHORTCUTS
-function render(){
-  const box = document.getElementById("shortcuts");
-  box.innerHTML = "";
-  shortcuts.forEach(s=>{
-    box.innerHTML += `<div class="shortcut" onclick="go('${s.url}')"><b>${s.name}</b><br><small>${s.url}</small></div>`;
-  });
-}
-function go(url){ window.location.href = url; }
-
-// MODAL
-function openModal(){ document.getElementById("modal").style.display="flex"; }
-function closeModal(){ document.getElementById("modal").style.display="none"; }
-function addShortcut(){
-  let name = document.getElementById("shortcutName").value;
-  let url = document.getElementById("shortcutURL").value;
-  if(!url.startsWith("http")) url = "https://" + url;
-  shortcuts.push({ name, url });
-  save(); render(); closeModal();
-}
-function clearShortcuts(){ shortcuts = []; save(); render(); }
-
-// SEARCH
+// Search function (simple Google redirect)
 function search(){
   const input = document.getElementById("searchInput").value.trim();
   if(!input) return;
-  const isSite = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}$/i;
-  if(isSite.test(input)){
-    let url = input;
-    if(!url.startsWith("http")) url = "https://" + url;
-    window.location.href = url;
-    return;
+  let url = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}$/i.test(input) ? input : "https://www.google.com/search?q=" + encodeURIComponent(input);
+  if(!url.startsWith("http")) url = "https://" + url;
+  window.open(url,"_blank"); // open in new tab to keep music alive
+}
+
+// Music upload
+const audio = document.getElementById("bgMusic");
+const musicInput = document.getElementById("musicInput");
+
+function pickMusic(){ musicInput.click(); }
+
+musicInput.addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  audio.src = url;
+  audio.play();
+  localStorage.setItem("musicSrc", url);
+  localStorage.setItem("musicTime", 0);
+  localStorage.setItem("isPaused", "false");
+  document.getElementById("musicToggleBtn").innerText = "⏸️";
+});
+
+// Play/pause toggle
+function toggleMusic(){
+  let pausedTime = parseFloat(localStorage.getItem("musicTime")||"0");
+  let isPaused = localStorage.getItem("isPaused")==="true";
+
+  if(audio.src==="") return;
+
+  if(isPaused){
+    // Resume
+    audio.currentTime = pausedTime;
+    audio.play();
+    document.getElementById("musicToggleBtn").innerText = "⏸️";
+    localStorage.setItem("isPaused","false");
+  } else {
+    // Pause
+    localStorage.setItem("musicTime", audio.currentTime);
+    audio.pause();
+    document.getElementById("musicToggleBtn").innerText = "▶️";
+    localStorage.setItem("isPaused","true");
   }
-  window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
 }
 
-// CLOCK
-function updateClock(){
-  const time = new Intl.DateTimeFormat("en-GB", { timeZone:timezone,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false }).format(new Date());
-  document.getElementById("clock").innerText = time;
-}
-setInterval(updateClock,1000);
-
-// SETTINGS
-function openSettings(){ document.getElementById("settingsModal").style.display="flex"; }
-function closeSettings(){ document.getElementById("settingsModal").style.display="none"; }
-function saveTimezone(){ timezone = document.getElementById("timezoneSelect").value; localStorage.setItem("timezone", timezone); closeSettings(); updateClock(); }
-
-// WALLPAPER
-function chooseWallpaper(){ document.getElementById("wallpaperInput").click(); }
-document.getElementById("wallpaperInput").addEventListener("change", function(e){
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev=>{ document.body.style.backgroundImage = `url(${ev.target.result})`; };
-  reader.readAsDataURL(file);
+// Auto-save current time
+audio.addEventListener("timeupdate", ()=>{
+  if(!audio.paused) localStorage.setItem("musicTime", audio.currentTime);
 });
-function removeBackground(){ document.body.style.backgroundImage=""; }
 
-// MUSIC
-function pickMusic(){ document.getElementById("musicInput").click(); }
-document.getElementById("musicInput").addEventListener("change", function(e){
-  const file = e.target.files[0]; if(!file) return;
-  const audio = document.getElementById("bgMusic");
-  audio.src = URL.createObjectURL(file); audio.play();
+// On page load: restore music
+window.addEventListener("load", ()=>{
+  const src = localStorage.getItem("musicSrc");
+  const time = parseFloat(localStorage.getItem("musicTime")||"0");
+  const paused = localStorage.getItem("isPaused")==="true";
+
+  if(src){
+    audio.src = src;
+    audio.currentTime = time;
+    if(!paused) audio.play();
+    document.getElementById("musicToggleBtn").innerText = paused?"▶️":"⏸️";
+  }
 });
-function stopMusic(){ const audio=document.getElementById("bgMusic"); audio.pause(); audio.src=""; }
-
-// BRAIN
-function toggleBrain(){
-  const panel=document.getElementById("brainPanel");
-  panel.style.display = (panel.style.display==="block")?"none":"block";
-}
-function askBrain(){
-  const result = document.getElementById("brainResult");
-  result.innerText = "silly boy, you thought the programmer knew how to do this!";
-}
-
-// INIT
-load(); render(); updateClock();
 </script>
 
 </body>
