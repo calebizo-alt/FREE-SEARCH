@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>free-search</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#111;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  min-height:100vh;
+  padding:40px 20px;
+  display:flex;
+  justify-content:center;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  z-index:0;
+}
+
+.container{
+  width:100%;
+  max-width:950px;
+  position:relative;
+  z-index:1;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:30px;
+  font-size:48px;
+  color:white;
+}
+
+/* BUTTONS */
+.top-buttons{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:20px;
+}
+
+.wallpaper-btn{
+  width:55px;
+  height:55px;
+  border:none;
+  border-radius:50%;
+  background:red;
+  color:white;
+  font-size:34px;
+  cursor:pointer;
+}
+
+/* SEARCH */
+.search-box{
+  display:flex;
+  gap:10px;
+  margin-bottom:30px;
+}
+
+.search-box input{
+  flex:1;
+  padding:16px;
+  border:none;
+  border-radius:12px;
+  font-size:18px;
+}
+
+.search-btn{
+  padding:16px 28px;
+  border:none;
+  border-radius:12px;
+  background:#4285f4;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+}
+
+/* SHORTCUTS */
+.shortcuts-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.shortcuts-header h2{
+  color:white;
+}
+
+.add-btn{
+  width:50px;
+  height:50px;
+  border:none;
+  border-radius:50%;
+  background:#34a853;
+  color:white;
+  font-size:30px;
+  cursor:pointer;
+}
+
+.shortcuts{
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+  margin-bottom:35px;
+}
+
+.shortcut{
+  background:rgba(255,255,255,0.9);
+  padding:20px;
+  border-radius:12px;
+  min-width:160px;
+  cursor:pointer;
+}
+
+/* RESULTS */
+.results{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.result{
+  background:rgba(255,255,255,0.92);
+  padding:20px;
+  border-radius:12px;
+}
+
+.result a{
+  color:#1a0dab;
+  text-decoration:none;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+
+.modal-content{
+  background:#202124;
+  width:90%;
+  max-width:500px;
+  padding:25px;
+  border-radius:16px;
+  color:white;
+}
+
+.modal-content input{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#3c4043;
+  color:white;
+}
+
+.modal-buttons{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:20px;
+}
+
+/* CLOCK */
+#clock{
+  position:fixed;
+  bottom:15px;
+  right:15px;
+  background:rgba(0,0,0,0.6);
+  color:white;
+  padding:10px 15px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  z-index:9999;
+}
+
+/* MUSIC BUTTON */
+#musicBtn{
+  position:fixed;
+  bottom:80px;
+  right:15px;
+  width:55px;
+  height:55px;
+  border:none;
+  border-radius:50%;
+  background:purple;
+  color:white;
+  font-size:34px;
+  cursor:pointer;
+  z-index:9999;
+}
+
+</style>
+</head>
+<body>
+
+<div class="overlay"></div>
+
+<div class="container">
+
+<h1>free-search</h1>
+
+<!-- WALLPAPER -->
+<div class="top-buttons">
+  <button class="wallpaper-btn" onclick="chooseWallpaper()">+</button>
+  <input type="file" id="wallpaperInput" accept="image/*" hidden>
+</div>
+
+<!-- SEARCH -->
+<div class="search-box">
+  <input id="searchInput" placeholder="Search or type website...">
+  <button class="search-btn" onclick="search()">Search</button>
+</div>
+
+<!-- SHORTCUTS -->
+<div class="shortcuts-header">
+  <h2>Shortcuts</h2>
+  <button class="add-btn" onclick="openModal()">+</button>
+</div>
+
+<div id="shortcuts" class="shortcuts"></div>
+
+<!-- RESULTS -->
+<div id="results" class="results"></div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+
+    <h2>Add shortcut</h2>
+
+    <input id="shortcutName" placeholder="Name">
+    <input id="shortcutURL" placeholder="URL">
+
+    <div class="modal-buttons">
+      <button onclick="closeModal()">Cancel</button>
+      <button onclick="addShortcut()">Done</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- CLOCK -->
+<div id="clock"></div>
+
+<!-- MUSIC -->
+<input type="file" id="musicInput" accept="audio/mp3" hidden>
+<audio id="bgMusic" loop></audio>
+<button id="musicBtn" onclick="pickMusic()">+</button>
+
+<script>
+
+let shortcuts = [
+  { name:"Google", url:"https://google.com" },
+  { name:"YouTube", url:"https://youtube.com" }
+];
+
+/* STORAGE */
+function save(){
+  try{
+    localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+  }catch(e){}
+}
+
+function load(){
+  try{
+    const data = localStorage.getItem("shortcuts");
+    if(data) shortcuts = JSON.parse(data);
+  }catch(e){}
+}
+
+/* WALLPAPER */
+function chooseWallpaper(){
+  document.getElementById("wallpaperInput").click();
+}
+
+document.getElementById("wallpaperInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    document.body.style.backgroundImage = `url(${ev.target.result})`;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* SHORTCUTS */
+function render(){
+  const box = document.getElementById("shortcuts");
+  box.innerHTML = "";
+
+  shortcuts.forEach(s=>{
+    box.innerHTML += `
+      <div class="shortcut" onclick="go('${s.url}')">
+        <b>${s.name}</b><br>
+        <small>${s.url}</small>
+      </div>
+    `;
+  });
+}
+
+function openModal(){
+  document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+function addShortcut(){
+  let name = document.getElementById("shortcutName").value;
+  let url = document.getElementById("shortcutURL").value;
+
+  if(!name || !url) return;
+
+  if(!url.startsWith("http")) url = "https://" + url;
+
+  shortcuts.push({ name, url });
+  save();
+  render();
+  closeModal();
+}
+
+function go(url){
+  window.location.href = url;
+}
+
+/* SEARCH (NOW GOOGLE) */
+function search(){
+  const input = document.getElementById("searchInput").value.trim();
+
+  if(!input) return;
+
+  const isSite = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}$/i;
+
+  if(isSite.test(input)){
+    let url = input;
+    if(!url.startsWith("http")) url = "https://" + url;
+    window.location.href = url;
+    return;
+  }
+
+  // GOOGLE SEARCH
+  window.location.href =
+    "https://www.google.com/search?q=" + encodeURIComponent(input);
+}
+
+/* CLOCK */
+function updateClock(){
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone:"Africa/Johannesburg",
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit",
+    hour12:false
+  }).format(new Date());
+
+  document.getElementById("clock").innerText = time;
+}
+setInterval(updateClock,1000);
+updateClock();
+
+/* MUSIC */
+function pickMusic(){
+  document.getElementById("musicInput").click();
+}
+
+document.getElementById("musicInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const audio = document.getElementById("bgMusic");
+  const url = URL.createObjectURL(file);
+
+  audio.src = url;
+  audio.volume = 0.5;
+  audio.play();
+});
+
+/* INIT */
+load();
+render();
+
+</script>
+
+</body>
+</html>
