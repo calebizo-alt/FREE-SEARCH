@@ -37,7 +37,7 @@ body{
   z-index:0;
 }
 
-/* MAIN LAYOUT CENTERED */
+/* container */
 .container{
   width:100%;
   max-width:900px;
@@ -50,12 +50,12 @@ body{
   gap:20px;
 }
 
-/* TITLE */
+/* title */
 h1{
   font-size:48px;
 }
 
-/* SEARCH */
+/* search */
 .search-box{
   display:flex;
   gap:10px;
@@ -80,13 +80,12 @@ h1{
   cursor:pointer;
 }
 
-/* SHORTCUTS */
+/* shortcuts */
 .shortcuts-header{
   display:flex;
   justify-content:center;
   align-items:center;
   gap:10px;
-  margin-top:20px;
 }
 
 .add-btn{
@@ -105,7 +104,6 @@ h1{
   flex-wrap:wrap;
   justify-content:center;
   gap:15px;
-  margin-top:10px;
 }
 
 .shortcut{
@@ -117,7 +115,7 @@ h1{
   color:black;
 }
 
-/* MODAL */
+/* modal */
 .modal{
   position:fixed;
   inset:0;
@@ -137,7 +135,7 @@ h1{
   color:white;
 }
 
-.modal-content input{
+.modal-content input, select{
   width:100%;
   padding:12px;
   margin-top:10px;
@@ -154,7 +152,7 @@ h1{
   margin-top:15px;
 }
 
-/* CLOCK */
+/* clock */
 #clock{
   position:fixed;
   bottom:15px;
@@ -164,7 +162,7 @@ h1{
   border-radius:12px;
 }
 
-/* WALLPAPER BUTTON */
+/* wallpaper */
 .wallpaper-btn{
   position:fixed;
   top:15px;
@@ -179,7 +177,7 @@ h1{
   cursor:pointer;
 }
 
-/* MUSIC BUTTON */
+/* music */
 #musicBtn{
   position:fixed;
   bottom:80px;
@@ -194,6 +192,22 @@ h1{
   cursor:pointer;
 }
 
+/* SETTINGS BUTTON */
+#settingsBtn{
+  position:fixed;
+  bottom:15px;
+  left:15px;
+  width:50px;
+  height:50px;
+  border:none;
+  border-radius:50%;
+  background:#555;
+  color:white;
+  font-size:22px;
+  cursor:pointer;
+  z-index:9999;
+}
+
 </style>
 </head>
 
@@ -205,13 +219,11 @@ h1{
 
 <h1>free-search</h1>
 
-<!-- SEARCH -->
 <div class="search-box">
   <input id="searchInput" placeholder="Search or type website...">
   <button class="search-btn" onclick="search()">Search</button>
 </div>
 
-<!-- SHORTCUTS -->
 <div class="shortcuts-header">
   <button class="add-btn" onclick="openModal()">+</button>
 </div>
@@ -224,7 +236,19 @@ h1{
 <button class="wallpaper-btn" onclick="chooseWallpaper()">+</button>
 <input type="file" id="wallpaperInput" accept="image/*" hidden>
 
-<!-- MODAL -->
+<!-- CLOCK -->
+<div id="clock"></div>
+
+<!-- MUSIC -->
+<input type="file" id="musicInput" accept="audio/mp3" hidden>
+<audio id="bgMusic" loop></audio>
+<button id="musicBtn" onclick="pickMusic()">+</button>
+
+<!-- SETTINGS -->
+<button id="settingsBtn" onclick="openSettings()">⚙️</button>
+
+<!-- MODALS -->
+
 <div class="modal" id="modal">
   <div class="modal-content">
 
@@ -241,34 +265,53 @@ h1{
   </div>
 </div>
 
-<!-- CLOCK -->
-<div id="clock"></div>
+<div class="modal" id="settingsModal">
+  <div class="modal-content">
 
-<!-- MUSIC -->
-<input type="file" id="musicInput" accept="audio/mp3" hidden>
-<audio id="bgMusic" loop></audio>
-<button id="musicBtn" onclick="pickMusic()">+</button>
+    <h2>Clock Settings</h2>
+
+    <select id="timezoneSelect">
+      <option value="Africa/Johannesburg">South Africa</option>
+      <option value="UTC">UTC</option>
+      <option value="Europe/London">London</option>
+      <option value="America/New_York">New York</option>
+      <option value="Asia/Dubai">Dubai</option>
+      <option value="Asia/Tokyo">Tokyo</option>
+    </select>
+
+    <div class="modal-buttons">
+      <button onclick="closeSettings()">Close</button>
+      <button onclick="saveTimezone()">Save</button>
+    </div>
+
+  </div>
+</div>
 
 <script>
 
-/* SAME JS (UNCHANGED LOGIC) */
-
+/* SHORTCUTS */
 let shortcuts = [
   { name:"Google", url:"https://google.com" },
   { name:"YouTube", url:"https://youtube.com" }
 ];
 
-function save(){
-  try{ localStorage.setItem("shortcuts", JSON.stringify(shortcuts)); }catch(e){}
-}
+let timezone = "Africa/Johannesburg";
 
+/* LOAD */
 function load(){
-  try{
-    const data = localStorage.getItem("shortcuts");
-    if(data) shortcuts = JSON.parse(data);
-  }catch(e){}
+  const s = localStorage.getItem("shortcuts");
+  if(s) shortcuts = JSON.parse(s);
+
+  const t = localStorage.getItem("timezone");
+  if(t) timezone = t;
 }
 
+/* SAVE */
+function save(){
+  localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
+}
+
+/* RENDER */
 function render(){
   const box = document.getElementById("shortcuts");
   box.innerHTML = "";
@@ -283,10 +326,18 @@ function render(){
   });
 }
 
-function go(url){ window.location.href = url; }
+function go(url){
+  window.location.href = url;
+}
 
-function openModal(){ document.getElementById("modal").style.display="flex"; }
-function closeModal(){ document.getElementById("modal").style.display="none"; }
+/* MODAL */
+function openModal(){
+  document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
 
 function addShortcut(){
   let name = document.getElementById("shortcutName").value;
@@ -300,6 +351,7 @@ function addShortcut(){
   closeModal();
 }
 
+/* SEARCH */
 function search(){
   const input = document.getElementById("searchInput").value.trim();
   if(!input) return;
@@ -317,9 +369,10 @@ function search(){
     "https://www.google.com/search?q=" + encodeURIComponent(input);
 }
 
+/* CLOCK */
 function updateClock(){
   const time = new Intl.DateTimeFormat("en-GB", {
-    timeZone:"Africa/Johannesburg",
+    timeZone: timezone,
     hour:"2-digit",
     minute:"2-digit",
     second:"2-digit",
@@ -329,8 +382,24 @@ function updateClock(){
   document.getElementById("clock").innerText = time;
 }
 setInterval(updateClock,1000);
-updateClock();
 
+/* SETTINGS */
+function openSettings(){
+  document.getElementById("settingsModal").style.display="flex";
+}
+
+function closeSettings(){
+  document.getElementById("settingsModal").style.display="none";
+}
+
+function saveTimezone(){
+  timezone = document.getElementById("timezoneSelect").value;
+  localStorage.setItem("timezone", timezone);
+  closeSettings();
+  updateClock();
+}
+
+/* WALLPAPER */
 function chooseWallpaper(){
   document.getElementById("wallpaperInput").click();
 }
@@ -346,6 +415,7 @@ document.getElementById("wallpaperInput").addEventListener("change", function(e)
   reader.readAsDataURL(file);
 });
 
+/* MUSIC */
 function pickMusic(){
   document.getElementById("musicInput").click();
 }
@@ -359,8 +429,10 @@ document.getElementById("musicInput").addEventListener("change", function(e){
   audio.play();
 });
 
+/* INIT */
 load();
 render();
+updateClock();
 
 </script>
 
