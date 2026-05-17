@@ -9,7 +9,6 @@
 <link rel="manifest" href="manifest.json">
 
 <style>
-
 *{
   margin:0;
   padding:0;
@@ -29,7 +28,6 @@ body{
   color:white;
 }
 
-/* container */
 .container{
   width:100%;
   max-width:900px;
@@ -42,7 +40,19 @@ body{
   gap:20px;
 }
 
-/* title */
+.title-container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
+.title-container h3{
+  color:#aaa;
+  font-size:18px;
+  margin-bottom:5px;
+}
+
 h1{
   font-size:48px;
 }
@@ -200,6 +210,51 @@ h1{
   z-index:9999;
 }
 
+/* brain */
+#brainBtn{
+  position:fixed;
+  top:50%;
+  right:15px;
+  transform:translateY(-50%);
+  width:55px;
+  height:55px;
+  border:none;
+  border-radius:50%;
+  background:#222;
+  color:white;
+  font-size:26px;
+  cursor:pointer;
+  z-index:9999;
+}
+
+#brainPanel{
+  position:fixed;
+  top:50%;
+  right:80px;
+  transform:translateY(-50%);
+  width:300px;
+  background:#1e1e1e;
+  padding:15px;
+  border-radius:12px;
+  display:none;
+  z-index:9999;
+}
+
+#brainPanel input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+#brainResult{
+  margin-top:10px;
+  font-size:14px;
+  color:#ddd;
+  max-height:200px;
+  overflow:auto;
+}
 </style>
 </head>
 
@@ -207,7 +262,10 @@ h1{
 
 <div class="container">
 
-<h1>free-search</h1>
+<div class="title-container">
+  <h3>(by Caleb)</h3>
+  <h1>free-search</h1>
+</div>
 
 <div class="search-box">
   <input id="searchInput" placeholder="Search or type website...">
@@ -237,29 +295,31 @@ h1{
 <!-- SETTINGS -->
 <button id="settingsBtn" onclick="openSettings()">⚙️</button>
 
-<!-- MODAL -->
+<!-- BRAIN -->
+<button id="brainBtn" onclick="toggleBrain()">🧠</button>
+<div id="brainPanel">
+  <h2>Brain Mode</h2>
+  <input id="brainInput" placeholder="Ask anything..." />
+  <button onclick="askBrain()">Ask</button>
+  <div id="brainResult"></div>
+</div>
+
+<!-- MODALS -->
 <div class="modal" id="modal">
   <div class="modal-content">
-
     <h2>Add shortcut</h2>
-
     <input id="shortcutName" placeholder="Name">
     <input id="shortcutURL" placeholder="URL">
-
     <div class="modal-buttons">
       <button onclick="closeModal()">Cancel</button>
       <button onclick="addShortcut()">Done</button>
     </div>
-
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div class="modal" id="settingsModal">
   <div class="modal-content">
-
     <h2>Settings</h2>
-
     <p>Time Zone:</p>
     <select id="timezoneSelect">
       <option value="Africa/Johannesburg">South Africa</option>
@@ -272,169 +332,113 @@ h1{
 
     <hr style="margin:15px 0;">
 
-    <button onclick="stopMusic()" style="width:100%;padding:10px;margin-top:10px;">
-      Remove Background Music
-    </button>
-
-    <button onclick="clearShortcuts()" style="width:100%;padding:10px;margin-top:10px;background:#d93025;color:white;">
-      Remove All Shortcuts
-    </button>
+    <button onclick="stopMusic()" style="width:100%;padding:10px;margin-top:10px;">Remove Background Music</button>
+    <button onclick="clearShortcuts()" style="width:100%;padding:10px;margin-top:10px;background:#d93025;color:white;">Remove All Shortcuts</button>
+    <button onclick="removeBackground()" style="width:100%;padding:10px;margin-top:10px;">Remove Background</button>
 
     <div class="modal-buttons">
       <button onclick="closeSettings()">Close</button>
       <button onclick="saveTimezone()">Save</button>
     </div>
-
   </div>
 </div>
 
 <script>
-
-/* DATA */
+// DATA
 let shortcuts = [
   { name:"Google", url:"https://google.com" },
   { name:"YouTube", url:"https://youtube.com" }
 ];
-
 let timezone = "Africa/Johannesburg";
 
-/* LOAD */
+// LOAD
 function load(){
   const s = localStorage.getItem("shortcuts");
   if(s) shortcuts = JSON.parse(s);
-
   const t = localStorage.getItem("timezone");
   if(t) timezone = t;
 }
+function save(){ localStorage.setItem("shortcuts", JSON.stringify(shortcuts)); }
 
-/* SAVE */
-function save(){
-  localStorage.setItem("shortcuts", JSON.stringify(shortcuts));
-}
-
-/* RENDER */
+// RENDER SHORTCUTS
 function render(){
   const box = document.getElementById("shortcuts");
   box.innerHTML = "";
-
   shortcuts.forEach(s=>{
-    box.innerHTML += `
-      <div class="shortcut" onclick="go('${s.url}')">
-        <b>${s.name}</b><br>
-        <small>${s.url}</small>
-      </div>
-    `;
+    box.innerHTML += `<div class="shortcut" onclick="go('${s.url}')"><b>${s.name}</b><br><small>${s.url}</small></div>`;
   });
 }
+function go(url){ window.location.href = url; }
 
-function go(url){
-  window.location.href = url;
+// MODAL
+function openModal(){ document.getElementById("modal").style.display="flex"; }
+function closeModal(){ document.getElementById("modal").style.display="none"; }
+function addShortcut(){
+  let name = document.getElementById("shortcutName").value;
+  let url = document.getElementById("shortcutURL").value;
+  if(!url.startsWith("http")) url = "https://" + url;
+  shortcuts.push({ name, url });
+  save(); render(); closeModal();
 }
+function clearShortcuts(){ shortcuts = []; save(); render(); }
 
-/* SEARCH */
+// SEARCH
 function search(){
   const input = document.getElementById("searchInput").value.trim();
   if(!input) return;
-
   const isSite = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}$/i;
-
   if(isSite.test(input)){
     let url = input;
     if(!url.startsWith("http")) url = "https://" + url;
     window.location.href = url;
     return;
   }
-
-  window.location.href =
-    "https://www.google.com/search?q=" + encodeURIComponent(input);
+  window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
 }
 
-/* SHORTCUTS */
-function openModal(){ document.getElementById("modal").style.display="flex"; }
-function closeModal(){ document.getElementById("modal").style.display="none"; }
-
-function addShortcut(){
-  let name = document.getElementById("shortcutName").value;
-  let url = document.getElementById("shortcutURL").value;
-
-  if(!url.startsWith("http")) url = "https://" + url;
-
-  shortcuts.push({ name, url });
-  save();
-  render();
-  closeModal();
-}
-
-function clearShortcuts(){
-  shortcuts = [];
-  save();
-  render();
-}
-
-/* CLOCK */
+// CLOCK
 function updateClock(){
-  const time = new Intl.DateTimeFormat("en-GB", {
-    timeZone: timezone,
-    hour:"2-digit",
-    minute:"2-digit",
-    second:"2-digit",
-    hour12:false
-  }).format(new Date());
-
+  const time = new Intl.DateTimeFormat("en-GB", { timeZone:timezone,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false }).format(new Date());
   document.getElementById("clock").innerText = time;
 }
 setInterval(updateClock,1000);
 
-/* SETTINGS */
+// SETTINGS
 function openSettings(){ document.getElementById("settingsModal").style.display="flex"; }
 function closeSettings(){ document.getElementById("settingsModal").style.display="none"; }
+function saveTimezone(){ timezone = document.getElementById("timezoneSelect").value; localStorage.setItem("timezone", timezone); closeSettings(); updateClock(); }
 
-function saveTimezone(){
-  timezone = document.getElementById("timezoneSelect").value;
-  localStorage.setItem("timezone", timezone);
-  closeSettings();
-  updateClock();
-}
-
-/* MUSIC */
-function pickMusic(){ document.getElementById("musicInput").click(); }
-
-document.getElementById("musicInput").addEventListener("change", function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-
-  const audio = document.getElementById("bgMusic");
-  audio.src = URL.createObjectURL(file);
-  audio.play();
-});
-
-function stopMusic(){
-  const audio = document.getElementById("bgMusic");
-  audio.pause();
-  audio.src = "";
-}
-
-/* WALLPAPER */
-function chooseWallpaper(){
-  document.getElementById("wallpaperInput").click();
-}
-
+// WALLPAPER
+function chooseWallpaper(){ document.getElementById("wallpaperInput").click(); }
 document.getElementById("wallpaperInput").addEventListener("change", function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-
+  const file = e.target.files[0]; if(!file) return;
   const reader = new FileReader();
-  reader.onload = ev=>{
-    document.body.style.backgroundImage = `url(${ev.target.result})`;
-  };
+  reader.onload = ev=>{ document.body.style.backgroundImage = `url(${ev.target.result})`; };
   reader.readAsDataURL(file);
 });
+function removeBackground(){ document.body.style.backgroundImage=""; }
 
-/* INIT */
-load();
-render();
-updateClock();
+// MUSIC
+function pickMusic(){ document.getElementById("musicInput").click(); }
+document.getElementById("musicInput").addEventListener("change", function(e){
+  const file = e.target.files[0]; if(!file) return;
+  const audio = document.getElementById("bgMusic");
+  audio.src = URL.createObjectURL(file); audio.play();
+});
+function stopMusic(){ const audio=document.getElementById("bgMusic"); audio.pause(); audio.src=""; }
 
+// BRAIN
+function toggleBrain(){
+  const panel=document.getElementById("brainPanel");
+  panel.style.display = (panel.style.display==="block")?"none":"block";
+}
+function askBrain(){
+  const result = document.getElementById("brainResult");
+  result.innerText = "silly boy, you thought the programmer knew how to do this!";
+}
+
+// INIT
+load(); render(); updateClock();
 </script>
 
 </body>
