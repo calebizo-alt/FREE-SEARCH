@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,9 +6,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>free-search</title>
+
 <link rel="manifest" href="manifest.json">
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -206,46 +209,6 @@ h1{
   z-index:9999;
 }
 
-/* MOBILE VERSION */
-@media screen and (max-width: 768px) {
-  /* Hide extra buttons */
-  #clock,
-  .shortcuts-header,
-  .wallpaper-btn,
-  #musicBtn,
-  #settingsBtn {
-    display: none !important;
-  }
-
-  /* Center container vertically and horizontally */
-  body {
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Make container take minimal width */
-  .container {
-    max-width: 90%;
-    gap: 15px;
-  }
-
-  h1 {
-    font-size: 36px;
-  }
-
-  .search-box {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .search-box input,
-  .search-btn {
-    width: 100%;
-    font-size: 16px;
-    padding: 12px;
-  }
-}
 </style>
 </head>
 
@@ -398,4 +361,81 @@ function search(){
 
   if(isSite.test(input)){
     let url = input;
-    if(!url.startsWith("http")) url
+    if(!url.startsWith("http")) url = "https://" + url;
+    window.location.href = url;
+    return;
+  }
+
+  window.location.href =
+    "https://www.google.com/search?q=" + encodeURIComponent(input);
+}
+
+/* CLOCK */
+function updateClock(){
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone,
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit",
+    hour12:false
+  }).format(new Date());
+
+  document.getElementById("clock").innerText = time;
+}
+setInterval(updateClock,1000);
+
+/* SETTINGS */
+function openSettings(){
+  document.getElementById("settingsModal").style.display="flex";
+}
+
+function closeSettings(){
+  document.getElementById("settingsModal").style.display="none";
+}
+
+function saveTimezone(){
+  timezone = document.getElementById("timezoneSelect").value;
+  localStorage.setItem("timezone", timezone);
+  closeSettings();
+  updateClock();
+}
+
+/* WALLPAPER */
+function chooseWallpaper(){
+  document.getElementById("wallpaperInput").click();
+}
+
+document.getElementById("wallpaperInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    document.body.style.backgroundImage = `url(${ev.target.result})`;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* MUSIC */
+function pickMusic(){
+  document.getElementById("musicInput").click();
+}
+
+document.getElementById("musicInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const audio = document.getElementById("bgMusic");
+  audio.src = URL.createObjectURL(file);
+  audio.play();
+});
+
+/* INIT */
+load();
+render();
+updateClock();
+
+</script>
+
+</body>
+</html>
