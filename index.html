@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -217,9 +219,7 @@ h1{
 
 <div class="container">
 
-<!-- Small grey author text above main title -->
-<small style="color:grey; font-size:12px; display:block; margin-bottom:5px;">by Caleb plaatjies</small>
-<h1>free-search</h1>
+<h1>free-search (by caleb plaatjies)</h1>
 
 <div class="search-box">
   <input id="searchInput" placeholder="Search or type website...">
@@ -391,3 +391,52 @@ function openSettings(){
 }
 
 function closeSettings(){
+  document.getElementById("settingsModal").style.display="none";
+}
+
+function saveTimezone(){
+  timezone = document.getElementById("timezoneSelect").value;
+  localStorage.setItem("timezone", timezone);
+  closeSettings();
+  updateClock();
+}
+
+/* WALLPAPER */
+function chooseWallpaper(){
+  document.getElementById("wallpaperInput").click();
+}
+
+document.getElementById("wallpaperInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    document.body.style.backgroundImage = `url(${ev.target.result})`;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* MUSIC */
+function pickMusic(){
+  document.getElementById("musicInput").click();
+}
+
+document.getElementById("musicInput").addEventListener("change", function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const audio = document.getElementById("bgMusic");
+  audio.src = URL.createObjectURL(file);
+  audio.play();
+});
+
+/* INIT */
+load();
+render();
+updateClock();
+
+</script>
+
+</body>
+</html>
